@@ -68,6 +68,12 @@ const undoDelete = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       {/* MAIN TITLE */}
+      {message && (
+  <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md">
+    {message}
+  </div>
+)}
+
 
       <div className="grid gap-8 md:grid-cols-2 max-w-6xl mx-auto">
         {/* LEFT COLUMN */}
