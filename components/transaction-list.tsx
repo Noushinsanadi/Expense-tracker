@@ -20,16 +20,22 @@ import {
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+// Add the import for the toast hook and UndoToast component
+import { useToast } from "@/hooks/use-toast"
+import { UndoToast } from "@/components/ui/toast-undo"
+
 interface TransactionListProps {
   expenses: Expense[]
   onUpdate: (expense: Expense) => void
   onDelete: (id: string) => void
 }
 
+// Add the toast hook inside the component
 export function TransactionList({ expenses, onUpdate, onDelete }: TransactionListProps) {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const { toast } = useToast()
 
   const filteredExpenses = expenses.filter(
     (expense) =>
@@ -57,17 +63,22 @@ export function TransactionList({ expenses, onUpdate, onDelete }: TransactionLis
         ) : (
           <div className="space-y-2">
             {sortedExpenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium">{expense.description}</div>
-                  <div className="text-sm text-muted-foreground flex gap-2">
-                    <span>{expense.category}</span>
-                    <span>•</span>
-                    <span>{format(expense.date, "MMM d, yyyy")}</span>
+              <div
+                key={expense.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg gap-2"
+              >
+                <div className="flex-1 min-w-0">
+                  {" "}
+                  {/* min-w-0 helps with text truncation */}
+                  <div className="font-medium break-words">{expense.description}</div>
+                  <div className="text-sm text-muted-foreground flex flex-wrap gap-2">
+                    <span className="inline-block">{expense.category}</span>
+                    <span className="inline-block">•</span>
+                    <span className="inline-block">{format(expense.date, "MMM d, yyyy")}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="font-semibold">${expense.amount.toFixed(2)}</div>
+                <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                  <div className="font-semibold whitespace-nowrap">${expense.amount.toFixed(2)}</div>
                   <Button variant="ghost" size="icon" onClick={() => setEditingExpense(expense)}>
                     <Edit2 className="h-4 w-4" />
                   </Button>
@@ -86,15 +97,16 @@ export function TransactionList({ expenses, onUpdate, onDelete }: TransactionLis
           <DialogHeader>
             <DialogTitle>Edit Expense</DialogTitle>
           </DialogHeader>
-          {editingExpense && (
-            <ExpenseForm
-              initialValues={editingExpense}
-              onSubmit={(values) => {
-                onUpdate({ ...values, id: editingExpense.id })
-                setEditingExpense(null)
-              }}
-            />
-          )}
+         {editingExpense && (
+  <ExpenseForm
+    initialValues={editingExpense}
+    onSubmit={(values) => {
+      onUpdate({ ...editingExpense, ...values }) // ✅ Preserve the original ID
+      setEditingExpense(null)
+    }}
+  />
+)}
+
         </DialogContent>
       </Dialog>
 
@@ -111,8 +123,25 @@ export function TransactionList({ expenses, onUpdate, onDelete }: TransactionLis
             <AlertDialogAction
               onClick={() => {
                 if (deleteConfirmId) {
+                  const expenseToDelete = expenses.find((expense) => expense.id === deleteConfirmId)
                   onDelete(deleteConfirmId)
                   setDeleteConfirmId(null)
+
+                  if (expenseToDelete) {
+                  toast({
+  title: "Transaction deleted",
+  description: `"${expenseToDelete.description}" has been removed`,
+  action: (
+    <UndoToast
+      onUndo={() => {
+        onUpdate(expenseToDelete) // 🔥 Ensures the expense is restored properly
+      }}
+    />
+  ),
+  duration: 5000,
+})
+
+                  }
                 }
               }}
             >

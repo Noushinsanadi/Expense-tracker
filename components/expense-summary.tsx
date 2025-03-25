@@ -39,30 +39,29 @@ export function ExpenseSummary({ expenses }: ExpenseSummaryProps) {
 
   return (
     <div>
-   
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-sm text-muted-foreground">Today's Spending</div>
-            <div className="text-2xl font-bold">${stats.todayTotal.toFixed(2)}</div>
+            <div className="text-2xl font-bold truncate">${stats.todayTotal.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-sm text-muted-foreground">Total Spending</div>
-            <div className="text-2xl font-bold">${stats.totalExpenses.toFixed(2)}</div>
+            <div className="text-2xl font-bold truncate">${stats.totalExpenses.toFixed(2)}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-sm text-muted-foreground">Transactions</div>
-            <div className="text-2xl font-bold">{stats.transactionCount}</div>
+            <div className="text-2xl font-bold truncate">{stats.transactionCount}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-sm text-muted-foreground">Top Category</div>
-            <div className="text-2xl font-bold">{stats.topCategory}</div>
+            <div className="text-2xl font-bold truncate">{stats.topCategory}</div>
           </CardContent>
         </Card>
       </div>

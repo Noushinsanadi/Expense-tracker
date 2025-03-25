@@ -7,7 +7,7 @@ import { ExpenseSummary } from "@/components/expense-summary"
 import { ExpenseChart } from "@/components/expense-chart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
-import { CheckCircle } from "lucide-react" // For a nice icon (optional)
+import { ToastUndo } from "@/components/ui/toast-undo"
 
 export type Expense = {
   id: string
@@ -19,7 +19,7 @@ export type Expense = {
 
 export function ExpenseTracker() {
   const [expenses, setExpenses] = useState<Expense[]>([])
-  const [message, setMessage] = useState<string | null>(null) // Message state
+  const [recentlyDeleted, setRecentlyDeleted] = useState<Expense | null>(null)
 
   const addExpense = (expense: Omit<Expense, "id">) => {
     const newExpense = {
@@ -27,40 +27,44 @@ export function ExpenseTracker() {
       id: crypto.randomUUID(),
     }
     setExpenses([...expenses, newExpense])
-
-    // Show message
-    setMessage("Expense added successfully!")
-
-    // Hide message after 2.5 seconds
-    setTimeout(() => {
-      setMessage(null)
-    }, 2500)
   }
 
-  const updateExpense = (updatedExpense: Expense) => {
-    setExpenses(expenses.map((expense) => (expense.id === updatedExpense.id ? updatedExpense : expense)))
-  }
+ const updateExpense = (updatedExpense: Expense) => {
+  setExpenses((prevExpenses) => {
+    const exists = prevExpenses.some((expense) => expense.id === updatedExpense.id)
+    return exists ? prevExpenses.map((expense) => (expense.id === updatedExpense.id ? updatedExpense : expense)) 
+                  : [...prevExpenses, updatedExpense] // 🔥 Adds back if it's missing
+  })
+}
+
+
 
   const deleteExpense = (id: string) => {
-    setExpenses(expenses.filter((expense) => expense.id !== id))
+    const expenseToDelete = expenses.find((expense) => expense.id === id)
+    if (expenseToDelete) {
+      setRecentlyDeleted(expenseToDelete)
+      setExpenses(expenses.filter((expense) => expense.id !== id))
+    }
   }
+
+ 
+const undoDelete = () => {
+  if (recentlyDeleted) {
+    setExpenses((prevExpenses) => [...prevExpenses, recentlyDeleted])
+    setRecentlyDeleted(null) // Clear after restoring
+  }
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+      {/* MAIN TITLE */}
+
       <div className="grid gap-8 md:grid-cols-2 max-w-6xl mx-auto">
         {/* LEFT COLUMN */}
         <div className="space-y-6">
-          <Card className="p-6 shadow-lg rounded-2xl relative">
+          <Card className="p-6 shadow-lg rounded-2xl">
             <h2 className="text-xl font-semibold mb-4">Add a New Expense</h2>
             <ExpenseForm onSubmit={addExpense} />
-
-            {/* Success Message */}
-            {message && (
-              <div className="absolute top-4 right-4 flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-lg shadow-md">
-                <CheckCircle className="w-5 h-5 mr-2" />
-                <span>{message}</span>
-              </div>
-            )}
           </Card>
 
           <Card className="p-6 shadow-lg rounded-2xl">
@@ -101,6 +105,8 @@ export function ExpenseTracker() {
           </Tabs>
         </div>
       </div>
+      <ToastUndo onUndo={undoDelete} />
     </div>
   )
 }
+

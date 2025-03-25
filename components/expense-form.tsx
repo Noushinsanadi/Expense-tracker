@@ -50,9 +50,8 @@ export function ExpenseForm({ onSubmit, initialValues }: ExpenseFormProps) {
 
   return (
     <div>
-   
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 max-w-full">
           <FormField
             control={form.control}
             name="amount"
@@ -62,7 +61,7 @@ export function ExpenseForm({ onSubmit, initialValues }: ExpenseFormProps) {
                 <FormControl>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5">$</span>
-                    <Input type="number" step="0.01" placeholder="0.00" className="pl-7" {...field} />
+                    <Input type="number" step="0.01" placeholder="0.00" className="pl-7 w-full" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -77,7 +76,7 @@ export function ExpenseForm({ onSubmit, initialValues }: ExpenseFormProps) {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Lunch, Taxi, etc." {...field} />
+                  <Input placeholder="Lunch, Taxi, etc." className="w-full" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
