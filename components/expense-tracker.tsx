@@ -20,6 +20,8 @@ export type Expense = {
 export function ExpenseTracker() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [recentlyDeleted, setRecentlyDeleted] = useState<Expense | null>(null)
+  const [message, setMessage] = useState<string | null>(null) // Message state
+
 
   const addExpense = (expense: Omit<Expense, "id">) => {
     const newExpense = {
@@ -27,6 +29,14 @@ export function ExpenseTracker() {
       id: crypto.randomUUID(),
     }
     setExpenses([...expenses, newExpense])
+
+    // Show message
+    setMessage("Expense added successfully!")
+
+    // Hide message after 2.5 seconds
+    setTimeout(() => {
+      setMessage(null)
+    }, 2500)
   }
 
  const updateExpense = (updatedExpense: Expense) => {
